@@ -13,7 +13,6 @@
 
  ## 🚀 Flujo de CI/CD
 
- ```mermaid
  ```markdown
 | Paso | Acción |
 |------|--------|
