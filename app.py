@@ -22,7 +22,7 @@ def ready():
 def ready():
     return jsonify({"status": "ready"}), 200
 
-@app.route('/tests')
+@app.route('/tests2')
 def ready():
     return jsonify({"status": "ready"}), 200
 
