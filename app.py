@@ -6,7 +6,7 @@ app = Flask(__name__)
 @app.route('/')
 def home():
     return jsonify({
-        "message": "API funcionando correctamente 🚀",
+        "message": "API funcionando incorrectamente 🚀",
         "pod": socket.gethostname()
     })
 
