@@ -41,7 +41,10 @@ jobs:
       - name: Configure kubeconfig
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 --decode > $HOME/.kube/config
+          echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+          echo "✅ Kubeconfig configurado"
+          cat $HOME/.kube/config  # Solo para depuración (opcional)
 
       - name: Apply Kubernetes manifests
         run: |
