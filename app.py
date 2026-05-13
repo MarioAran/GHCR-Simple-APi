@@ -1,5 +1,4 @@
-from docker.mirror.ghcr.io/library/python:3.10-slim
-#from flask import Flask, jsonify
+from flask import Flask, jsonify
 import socket
 
 app = Flask(__name__)
