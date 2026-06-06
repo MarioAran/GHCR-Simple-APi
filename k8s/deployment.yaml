@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
       - name: api
-        image: ghcr.io/marioaran/simple-api:OLD_TAG
-        imagePullPolicy: IfNotPresent
+        image: ghcr.io/marioaran/simple-api:PLACEHOLDER_TAG
+        imagePullPolicy: always
         ports:
         - containerPort: 5000
         livenessProbe:

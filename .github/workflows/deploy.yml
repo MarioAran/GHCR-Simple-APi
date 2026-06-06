@@ -1,47 +1,46 @@
-name: Deploy to Kubernetes
+# .github/workflows/deploy.yml
+name: Build and Deploy
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch:
+    branches: [ main ]
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: marioaran/simple-api
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: self-hosted
-    permissions:
-      contents: write      # Necesita write para hacer commit
-      packages: write
-
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}  # Para poder hacer push
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GHCR_PAT }}
-
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-
-      - name: Push Docker image
-        run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Update k8s manifest with new image tag
-        run: |
-          sed -i "s|image: ghcr.io/marioaran/simple-api:.*|image: ghcr.io/marioaran/simple-api:${{ github.sha }}|" k8s/deployment.yaml
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add k8s/deployment.yaml
-          git diff --staged --quiet || git commit -m "Update image tag to ${{ github.sha }} [skip ci]"
-          git push
+    - uses: actions/checkout@v4
+    
+    - name: Log in to GHCR
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GHCR_PAT }}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.ref_name }}
+    
+    - name: Update Kubernetes manifests
+      run: |
+        # Usar sed para actualizar el tag en el archivo YAML
+        sed -i "s|image:.*|image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}|" k8s/simple-api.yaml
+        
+        # Mostrar el cambio (para debug)
+        cat k8s/simple-api.yaml
+    
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f k8s/simple-api.yaml
+        kubectl rollout status deployment/simple-api -n simple-api
