@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: api
-        image: ghcr.io/marioaran/simple-api:PLACEHOLDER_TAG
+        image: ghcr.io/marioaran/simple-api:latest
         imagePullPolicy: always
         ports:
         - containerPort: 5000
