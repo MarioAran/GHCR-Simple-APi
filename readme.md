@@ -237,6 +237,14 @@
  - El self-hosted runner debe estar ejecutándose (`./run.sh`)
  - El paquete en GHCR debe ser **público** o tener `imagePullSecret`
  - Kubernetes debe estar activado en Docker Desktop
+ ## ToDO
+ - Acción							Prioridad
+ - Dividir simple-api.yaml en deployment.yaml + service.yaml	Alta
+ - Cambiar tag de :latest a timestamp o SHA			Alta		
+ - Instalar ArgoCD en su clúster				Alta	
+ - Configurar ArgoCD para apuntar a su repo			Alta		
+ - Eliminar el kubectl apply de su GitHub Actions		Media		
+ - Configurar ArgoCD Image Updater (opcional)			Baja		
 
  ## 📬 Contacto
 

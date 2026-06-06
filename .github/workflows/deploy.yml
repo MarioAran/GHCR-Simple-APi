@@ -29,28 +29,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
 
       - name: Push Docker image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-      - name: Setup kubectl
-        uses: azure/setup-kubectl@v4
-
-      - name: Configure kubeconfig
-        run: |
-          mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
-          echo "✅ Kubeconfig configurado"
-          cat $HOME/.kube/config  # Solo para depuración (opcional)
-
-      - name: Apply Kubernetes manifests
-        run: |
-          kubectl apply -f k8s/simple-api.yaml
-
-      - name: Restart deployment
-        run: |
-          kubectl rollout restart deployment simple-api -n simple-api
-          kubectl rollout status deployment simple-api -n simple-api
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
