@@ -10,8 +10,8 @@ spec:
     targetRevision: main
     path: k8s
   destination:
-    server: https://kubernetes.simple-api.svc
-    namespace: default
+    server: https://kubernetes.default.svc
+    namespace: simple-api
   syncPolicy:
     automated:
       prune: true
