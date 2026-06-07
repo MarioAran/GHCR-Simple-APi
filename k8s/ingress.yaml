@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: simple-api-ingress
+  namespace: simple-api
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: api.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: simple-api-service
+            port:
+              number: 5000
