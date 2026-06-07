@@ -7,11 +7,15 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: marioaran/simple-api
+  IMAGE_NAME: simple-api
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted   
+
+    permissions:  # ← AÑADE ESTO
+      contents: read
+      packages: write  # Permiso para publicar en GHCR
 
     steps:
       - name: Checkout code
