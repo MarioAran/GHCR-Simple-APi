@@ -7,36 +7,31 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # Define la ruta completa de la imagen
+  IMAGE_NAME: simple-api
   IMAGE_FULL: ${{ github.actor }}/simple-api
-
 
 jobs:
   build-and-deploy:
     runs-on: self-hosted   
 
-    permissions:  # ← AÑADE ESTO
+    permissions:
       contents: read
-      packages: write  # Permiso para publicar en GHCR
+      packages: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
       - name: Login to GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
-          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_FULL }}:${{ github.sha }} .
+          docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_FULL }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_FULL }}:latest
 
       - name: Push Docker image
         run: |
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-
-      - name: Deploy to Kubernetes
-        run: |
-          kubectl set image deployment/simple-api -n simple-api api=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          kubectl rollout status deployment/simple-api -n simple-api
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_FULL }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_FULL }}:latest
