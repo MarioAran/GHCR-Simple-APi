@@ -7,7 +7,9 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: simple-api
+  # Define la ruta completa de la imagen
+  IMAGE_FULL: ${{ github.actor }}/simple-api
+
 
 jobs:
   build-and-deploy:
