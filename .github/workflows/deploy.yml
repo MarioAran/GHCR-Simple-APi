@@ -25,6 +25,7 @@ jobs:
           pwd
           ls -la
           cat requirements.txt
+
       - name: Scan code with Trivy (fs)
         uses: aquasecurity/trivy-action@master
         with:
@@ -34,9 +35,8 @@ jobs:
           output: 'trivy-code-results.sarif'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
-          trivyignores: .trivyignore   
-          scanners: 'vuln'          # Solo vulnerabilidades, no secrets
-          timeout: '10m'
+          version: 'latest'   # ← Forzar última versión
+
       - name: Build Docker image
         id: build
         run: |
