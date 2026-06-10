@@ -1,0 +1,4 @@
+# .trivyignore
+site-packages
+__pycache__
+*.pyc
