@@ -25,7 +25,9 @@ jobs:
           pwd
           ls -la
           cat requirements.txt
-
+      - name: Install dependencies for scanning
+        run: |
+          pip install -r requirements.txt
       - name: Scan code with Trivy (fs)
         uses: aquasecurity/trivy-action@master
         with:
