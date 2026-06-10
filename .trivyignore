@@ -1,4 +1,2 @@
-# .trivyignore
-site-packages
-__pycache__
-*.pyc
+CVE-2026-42496
+CVE-2026-8376
