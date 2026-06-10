@@ -56,6 +56,11 @@ jobs:
           echo "FULL_IMAGE=${FULL_IMAGE}" >> $GITHUB_ENV
           echo "full_image=${FULL_IMAGE}" >> $GITHUB_OUTPUT
       
+      - name: Debug Trivy scan (list vulnerabilities)
+        run: |
+          trivy image --severity CRITICAL --ignorefile .trivyignore --exit-code 0 --format table ${{ env.FULL_IMAGE }}:latest
+
+
       - name: Scan image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
