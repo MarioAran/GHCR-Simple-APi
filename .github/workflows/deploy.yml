@@ -32,6 +32,7 @@ jobs:
           trivyignores: |
             .git
             __pycache__
+            site-packages
       - name: Build Docker image
         id: build
         run: |
