@@ -1,4 +1,4 @@
-FROM ghcr.io/marioaran/python-base:3.11-alpine
+FROM ghcr.io/marioaran/python-base:3.12-slim
 
 WORKDIR /app
 
