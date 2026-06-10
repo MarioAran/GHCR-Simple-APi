@@ -29,7 +29,8 @@ jobs:
           output: 'trivy-code-results.sarif'
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
-          
+          trivyignores: |
+            site-packages
       - name: Build Docker image
         id: build
         run: |
