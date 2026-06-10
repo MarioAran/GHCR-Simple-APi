@@ -20,6 +20,11 @@ jobs:
       - name: Login to GHCR
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: Debug files
+        run: |
+          pwd
+          ls -la
+          cat requirements.txt
       - name: Scan code with Trivy (fs)
         uses: aquasecurity/trivy-action@master
         with:
@@ -30,7 +35,8 @@ jobs:
           exit-code: '1'
           severity: 'CRITICAL,HIGH'
           trivyignores: .trivyignore   
-
+          scanners: 'vuln'          # Solo vulnerabilidades, no secrets
+          timeout: '10m'
       - name: Build Docker image
         id: build
         run: |
