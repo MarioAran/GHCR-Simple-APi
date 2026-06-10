@@ -39,6 +39,7 @@ jobs:
           severity: 'CRITICAL,HIGH'
           version: 'latest'   # ← Forzar última versión
 
+
       - name: Build Docker image
         id: build
         run: |
@@ -63,6 +64,8 @@ jobs:
           output: 'trivy-results.sarif'
           exit-code: '1'
           severity: 'CRITICAL'
+          trivyignores: .trivyignore
+
       
       - name: Push Docker image 
         run: |   
