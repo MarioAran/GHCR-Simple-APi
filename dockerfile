@@ -3,7 +3,7 @@ FROM ghcr.io/marioaran/python-base:3.12-slim
 WORKDIR /app
 
 # Crear requirements.txt directamente en el Dockerfile (para evitar errores de copia)
-RUN echo "flask==3.0.3" > requirements.txt
+RUN echo "flask==3.1.3" > requirements.txt
 
 # Instalar Flask
 RUN pip install --no-cache-dir -r requirements.txt
