@@ -68,58 +68,50 @@
  ```
 
  ## ☸️ Despliegue en Kubernetes
+```
+# Aplicar los manifiestos
+kubectl apply -f k8s/simple-api.yaml
 
- ### Aplicar los manifiestos
+# Ver recursos
+kubectl get all -n simple-api
 
- ```bash
- kubectl apply -f k8s/simple-api.yaml
- ```
+# Hacer port-forward
+kubectl port-forward service/simple-api-service 30080:5000 -n simple-api
 
- ### Ver recursos
+# Probar la API desplegada
+curl http://localhost:30080/
+curl http://localhost:30080/health
 
- ```bash
- kubectl get all -n simple-api
- ```
-
- ### Probar la API desplegada
-
- ```bash
- curl http://localhost:30080/
- curl http://localhost:30080/health
- ```
-
- ### Limpiar recursos
-
- ```bash
- kubectl delete namespace simple-api
- ```
+# Limpiar
+kubectl delete namespace simple-api
+```
 
  ## 🔄 CI/CD con GitHub Actions
 
  El workflow `deploy.yml` hace:
 
- 1. **Checkout** del código
- 2. **Login** en GHCR (con `secrets.GHCR_PAT`)
- 3. **Build** de la imagen Docker
- 4. **Push** a GHCR
- 5. **Conexión** al clúster local (via self-hosted runner)
- 6. **Aplicación** de los manifiestos Kubernetes
- 7. **Reinicio** del deployment
+1. Checkout: Clona el repositorio en el runner de GitHub Actions.
+
+2. Login en GHCR: Se autentica en GitHub Container Registry usando un token (secrets.GHCR_PAT).
+
+3. Build: Construye la imagen Docker de la aplicación.
+
+4. Push: Sube la imagen a GHCR con una etiqueta (normalmente latest o el commit SHA).
+
+5. Actualización del manifiesto (opcional): Si el pipeline actualiza el tag de la imagen en el repositorio Git (ej. :latest o un SHA específico), ArgoCD detectará el cambio en el manifiesto.
+
+6. Detección por ArgoCD: ArgoCD, que monitoriza el repositorio Git, detecta el cambio en el manifiesto (por ejemplo, un nuevo tag de imagen o un cambio en el número de réplicas).
+
+7. Sincronización automática (o manual): ArgoCD sincroniza el estado del clúster con el estado definido en Git.
+
+8. Rolling update: Kubernetes realiza una actualización progresiva (rolling update), destruyendo los pods antiguos y creando nuevos con la versión actualizada de la imagen.
 
  ### Secretos necesarios
 
  | Secreto | Valor |
  |---------|-------|
  | `GHCR_PAT` | Personal Access Token con permiso `write:packages` |
- | `KUBECONFIG_BASE64` | `cat ~/.kube/config | base64` (opcional) |
 
- ## 🧪 Probar el pipeline
-
- ```bash
- git add .
- git commit -m "test: trigger pipeline"
- git push origin main
- ```
 
  ## ⚠️ Posibles problemas y soluciones
 
@@ -154,84 +146,27 @@
    --namespace=simple-api
  ```
 
- ### 3. Error: `connection refused` en `kubectl`
 
- **Causa**: Kubernetes no está activado o el kubeconfig es inválido.
+ ### 3. ArgoCD no detecta cambios 
 
- **Soluciones**:
- ```bash
- # Verificar conexión con kubeconfig específico
+Causa: La sincronización automática no está activada o el webhook no está configurado.
 
- #cuando se ejecuta el runner de github action suele romper kubeconfig se recomienda crear una copia y usarla para que el runner no tenga acceso al origina
- cat ~/.kube/config > /tmp/test-config
- KUBECONFIG=/tmp/test-config kubectl get nodes
+Soluciones:
+```
+# Verificar que el app esté configurada con `syncPolicy: automated`
+kubectl describe application simple-api -n argocd
+```
 
+ ### ArgoCD no detecta cambios
+ Causa: La sincronización automática no está activada.
 
- # Verificar que Docker Desktop tiene Kubernetes activado
- kubectl cluster-info
+ Soluciones: Configurar en el Application:
  ```
-
- ### 4. El runner no recoge los jobs
-
- **Causa**: El self-hosted runner no está ejecutándose.
-
- **Solución**:
- ```bash
- # Iniciar el runner manualmente ya que no es un servicio 
- cd actions-runner
- ./run.sh
- 
- # Ver logs del runner
- tail -f runner.log
- 
- # si lo quieres configurar como servicio usa el script svc.sh
- ./svc.sh install
- ./svc.sh start
- #comandos utiles 
- Comando	Acción
- ./svc.sh install	Instala el servicio launchd.
- ./svc.sh start	Inicia el servicio (el runner empieza a escuchar trabajos).
- ./svc.sh stop	Detiene el servicio.
- ./svc.sh status	Muestra si el servicio está activo o no.
- ./svc.sh uninstall	Elimina el servicio del sistema. 
-
- #si no sabes como obtener el runner ve a tu proyecto -> actions -> runner -> new runner -> new self-hosted runner y seguir las instrucciones 
- #en mi caso uso el selft hosted porque lo pruebo en un k8s local 
+ syncPolicy:
+  automated:
+    prune: true
+    selfHeal: true
  ```
-
- ### 5. Error: `AssertionError: View function mapping is overwriting...`
-
- **Causa**: Dos funciones con el mismo nombre en `app.py` (Flask).
-
- **Solución**: Revisar que cada `@app.route` tenga una función diferente.
-
- ```python
- @app.route('/health')
- def health():  # ← principa
-     return jsonify({"status": "healthy"}), 200
-
- @app.route('/ready')
- def ready():   # ← funcion con el mismo nombre 
-     return jsonify({"status": "ready"}), 200
- ```
-
- ### 6. El workflow se queda en "Waiting for a runner"
-
- **Causa**: El self-hosted runner no está online.
-
- **Soluciones**:
- ```bash
- # 1. Verificar que el runner está ejecutándose
- ps aux | grep run.sh
-
- # 2. Reiniciar el runner
- cd actions-runner
- ./run.sh
-
- # 3. Verificar en GitHub: Settings → Actions → Runners
- # El estado debe ser "Idle"
- ```
-
  ## 📝 Notas
 
  - El self-hosted runner debe estar ejecutándose (`./run.sh`)
